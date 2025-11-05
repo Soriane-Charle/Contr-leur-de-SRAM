@@ -1,0 +1,9 @@
+# compile vhdl design source files
+vhdl xil_defaultlib  \
+"../../../../../project_filters/project_filters.srcs/sources_1/new/BasculeFF.vhd" \
+"../../../../Control_SRAM.srcs/sources_1/new/IO_Buffer.vhd" \
+"../../../../mt55l512y36f.vhd" \
+"../../../../Control_SRAM.srcs/sim_1/new/IO_SRAM_tb.vhd" \
+
+# Do not sort compile order
+nosort

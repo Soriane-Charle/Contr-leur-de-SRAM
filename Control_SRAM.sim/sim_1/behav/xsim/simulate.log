@@ -1,0 +1,10 @@
+Vivado Simulator 2019.1
+Time resolution is 1 ps
+Error: Addr - tKHAX violation
+Time: 10500 ps  Iteration: 0  Process: /IO_SRAM_tb/SRAM1/hold_check  File: D:/Xilinx/sosoVivado/Control_SRAM/mt55l512y36f.vhd
+Error: RW# - tKHCX violation
+Time: 10500 ps  Iteration: 0  Process: /IO_SRAM_tb/SRAM1/hold_check  File: D:/Xilinx/sosoVivado/Control_SRAM/mt55l512y36f.vhd
+Error: Addr - tKHAX violation
+Time: 40500 ps  Iteration: 0  Process: /IO_SRAM_tb/SRAM1/hold_check  File: D:/Xilinx/sosoVivado/Control_SRAM/mt55l512y36f.vhd
+Error: RW# - tKHCX violation
+Time: 40500 ps  Iteration: 0  Process: /IO_SRAM_tb/SRAM1/hold_check  File: D:/Xilinx/sosoVivado/Control_SRAM/mt55l512y36f.vhd

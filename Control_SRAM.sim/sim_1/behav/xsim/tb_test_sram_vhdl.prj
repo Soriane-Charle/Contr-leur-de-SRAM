@@ -1,0 +1,7 @@
+# compile vhdl design source files
+vhdl xil_defaultlib  \
+"../../../../mt55l512y36f.vhd" \
+"../../../../tb_test_sram.vhd" \
+
+# Do not sort compile order
+nosort
