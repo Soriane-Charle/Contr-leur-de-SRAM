@@ -1,6 +1,6 @@
 Vivado Simulator 2019.1
 Copyright 1986-1999, 2001-2019 Xilinx, Inc. All Rights Reserved.
-Running: D:/Xilinx/Vivado/2019.1/bin/unwrapped/win64.o/xelab.exe -wto cd90402bfee048c4bcfbd8bd47298e97 --incr --debug typical --relax --mt 2 -L xil_defaultlib -L secureip --snapshot IO_SRAM_tb_behav xil_defaultlib.IO_SRAM_tb -log elaborate.log 
+Running: D:/Xilinx/Vivado/2019.1/bin/unwrapped/win64.o/xelab.exe -wto cd90402bfee048c4bcfbd8bd47298e97 --incr --debug typical --relax --mt 2 -L xil_defaultlib -L secureip --snapshot tb_sram_ctrl3_behav xil_defaultlib.tb_sram_ctrl3 -log elaborate.log 
 Using 2 slave threads.
 Starting static elaboration
 Completed static elaboration
@@ -13,15 +13,7 @@ Compiling package ieee.std_logic_1164
 Compiling package ieee.numeric_std
 Compiling package ieee.std_logic_arith
 Compiling package ieee.std_logic_unsigned
-Compiling package unisim.vcomponents
-Compiling package ieee.vital_timing
-Compiling package ieee.vital_primitives
-Compiling package unisim.vpkg
+Compiling architecture rtl of entity xil_defaultlib.sram_ctrl3 [sram_ctrl3_default]
 Compiling architecture behave of entity xil_defaultlib.mt55l512y36f [mt55l512y36f_default]
-Compiling architecture obuft_v of entity unisim.OBUFT [\OBUFT(drive=16,slew="FAST")(1,9...]
-Compiling architecture ibuf_v of entity unisim.IBUF [\IBUF(1,9)(1,1)(1,4)(1,7)\]
-Compiling architecture iobuf_f_16_v of entity unisim.IOBUF_F_16 [iobuf_f_16_default]
-Compiling architecture behavioral of entity xil_defaultlib.BasculeFF [\BasculeFF(bus_width=35)\]
-Compiling architecture behaviour of entity xil_defaultlib.IO_SRAM [io_sram_default]
-Compiling architecture tb of entity xil_defaultlib.io_sram_tb
-Built simulation snapshot IO_SRAM_tb_behav
+Compiling architecture sim of entity xil_defaultlib.tb_sram_ctrl3
+Built simulation snapshot tb_sram_ctrl3_behav

@@ -1,106 +1,89 @@
+library ieee;
+use ieee.std_logic_1164.all;
 
---------------------------------------------------------------------------------
--- Company: 
--- Engineer:
---
--- Create Date:   18:30:51 02/21/2007
--- Design Name:   test_io
--- Module Name:   D:/users/infotronique/jd/test/tb_test_io.vhd
--- Project Name:  test
--- Target Device:  
--- Tool versions:  
--- Description:   
--- 
--- VHDL Test Bench Created by ISE for module: test_io
---
--- Dependencies:
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
---
--- Notes: 
--- This testbench has been automatically generated using types std_logic and
--- std_logic_vector for the ports of the unit under test.  Xilinx recommends 
--- that these types always be used for the top-level I/O of a design in order 
--- to guarantee that the testbench will bind correctly to the post-implementation 
--- simulation model.
---------------------------------------------------------------------------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.ALL;
-USE ieee.std_logic_unsigned.all;
-USE ieee.numeric_std.ALL;
+library UNISIM;
+use UNISIM.VComponents.all;
 
-ENTITY tb_test_io_vhd IS
-END tb_test_io_vhd;
+entity tb_iobuf_f_16 is
+end entity;
 
-ARCHITECTURE behavior OF tb_test_io_vhd IS 
+architecture sim of tb_iobuf_f_16 is
 
-	-- Component Declaration for the Unit Under Test (UUT)
-	COMPONENT test_io
-	PORT(
-		CLK : IN std_logic;
-		nRESET : IN std_logic;
-		TRIG : IN std_logic;
-		ENTREE : IN std_logic;    
-		E_S : INOUT std_logic;      
-		SORTIE : OUT std_logic
-		);
-	END COMPONENT;
+    -- Clock
+    signal clk    : std_logic := '0';
+    constant Tclk : time := 10 ns;
 
-	--Inputs
-	SIGNAL CLK :  std_logic := '0';
-	SIGNAL nRESET :  std_logic := '0';
-	SIGNAL TRIG :  std_logic := '0';
-	SIGNAL ENTREE :  std_logic := '0';
+    -- DUT signals
+    signal O_tb  : std_logic;
+    signal IO_tb : std_logic := 'Z';
+    signal I_tb  : std_logic := '0';
+    signal T_tb  : std_logic := '1';
 
-	--BiDirs
-	SIGNAL E_S :  std_logic;
+begin
 
-	--Outputs
-	SIGNAL SORTIE :  std_logic;
+    --------------------------------------------------
+    -- Clock generation
+    --------------------------------------------------
+    clk <= not clk after Tclk/2;
 
-BEGIN
+    --------------------------------------------------
+    -- DUT
+    --------------------------------------------------
+    DUT : IOBUF_F_16
+        port map (
+            O  => O_tb,
+            IO => IO_tb,
+            I  => I_tb,
+            T  => T_tb
+        );
 
-	-- Instantiate the Unit Under Test (UUT)
-	uut: test_io PORT MAP(
-		SORTIE => SORTIE,
-		CLK => CLK,
-		nRESET => nRESET,
-		TRIG => TRIG,
-		E_S => E_S,
-		ENTREE => ENTREE
-	);
+    --------------------------------------------------
+    -- Stimulus (simple, explicit)
+    --------------------------------------------------
+    stim_proc : process
+    begin
 
-	tb : PROCESS
-	BEGIN
-	ENTREE <= '0';
-	TRIG	<= '0';
-	E_S <= 'Z';
-	wait for 100 ns;
-		-- Wait 100 ns for global reset to finish
-		
-	ENTREE <= '1';
-	TRIG	<= '0';
-	wait for 100 ns;
-	
-	ENTREE <= '0';
-	TRIG	<= '0';
-	wait for 100 ns;
-	
-	E_S <= 'Z';
-	TRIG	<= '1';
-	wait for 2 ns;
-	E_S <= '1';
-	wait for 100 ns;
-	
-	E_S <= 'Z';
-	wait for 2 ns;
-	TRIG	<= '0';
-	wait for 100 ns;
-		-- Place stimulus here
+        -- INIT
+        T_tb  <= '1';      -- Read mode
+        I_tb  <= '1';
+        IO_tb <= 'Z';
+        wait for 30 ns;
 
-		wait; -- will wait forever
-	END PROCESS;
+        -- WRITE MODE : drive 1
+        wait until rising_edge(clk);
+        T_tb <= '0';
+        I_tb <= '1';
+        --IO_tb <= '1';
+        wait for 40 ns;
 
-END;
+        -- WRITE MODE : drive 0
+        wait until rising_edge(clk);
+        I_tb <= '1';
+        --IO_tb <= '1';
+        wait for 40 ns;
+
+        -- SWITCH TO READ MODE
+        wait until rising_edge(clk);
+        T_tb <= '1';
+         I_tb <= '1';
+         --IO_tb <= '1';
+        
+        wait for 40 ns;
+
+        -- READ MODE : external 0
+        wait until rising_edge(clk);
+        T_tb <= '0';
+         I_tb <= '1';
+         IO_tb <= 'Z';
+        wait for 40 ns;
+
+        -- FLOATING IO
+        wait until rising_edge(clk);
+        IO_tb <= 'Z';
+        wait for 40 ns;
+
+        -- END
+        wait;
+    end process;
+
+end architecture;

@@ -1,2 +1,2 @@
-INFO: [VRFC 10-163] Analyzing VHDL file "D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sim_1/new/IO_SRAM_tb.vhd" into library xil_defaultlib
-INFO: [VRFC 10-3107] analyzing entity 'IO_SRAM_tb'
+INFO: [VRFC 10-163] Analyzing VHDL file "D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sim_1/new/SIM.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'tb_sram_ctrl3'

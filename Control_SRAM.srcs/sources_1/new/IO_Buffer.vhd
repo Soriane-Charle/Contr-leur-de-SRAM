@@ -26,7 +26,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.all;
-USE ieee.std_logic_unsigned.all;
+
 library unisim;
 use unisim.VComponents.all;
  
@@ -40,13 +40,13 @@ use unisim.VComponents.all;
  
 entity IO_SRAM is
 
-    Port ( Data_In   : in STD_LOGIC_VECTOR(35 DOWNTO 0);
-           Data_Out  : out STD_LOGIC_VECTOR(35 DOWNTO 0);
-           Addrs     : in STD_LOGIC_VECTOR(18 DOWNTO 0);
-           RW        : in STD_LOGIC;
-           CLK       : in STD_LOGIC;
-           Rst       : IN STD_LOGIC;
-           Dq        : INOUT STD_LOGIC_VECTOR (35 DOWNTO 0);   -- Data I/O
+    Port ( Data_In   : in     STD_LOGIC_VECTOR(35 DOWNTO 0);
+           Data_Out  : out    STD_LOGIC_VECTOR(35 DOWNTO 0);
+           Addrs     : in     STD_LOGIC_VECTOR(18 DOWNTO 0);
+           RW        : in     STD_LOGIC;
+           CLK       : in     STD_LOGIC;
+           Rst       : IN     STD_LOGIC;
+           Dq        : INOUT  STD_LOGIC_VECTOR (35 DOWNTO 0);   -- Data I/O
            Addr      : OUT    STD_LOGIC_VECTOR (18 DOWNTO 0);   -- Address
            Lbo_n     : OUT    STD_LOGIC;                                   -- Burst Mode
            Cke_n     : OUT    STD_LOGIC;                                   -- Cke#
@@ -57,10 +57,12 @@ entity IO_SRAM is
            Bwd_n     : OUT    STD_LOGIC;                                   -- BWd#
            Rw_n      : OUT    STD_LOGIC;                                   -- RW#
            Oe_n      : OUT    STD_LOGIC;                                   -- OE#
-           Ce_n      : OUT   STD_LOGIC;                                   -- CE#
+           Ce_n      : OUT    STD_LOGIC;                                   -- CE#
            Ce2_n     : OUT    STD_LOGIC;                                   -- CE2#
            Ce2       : OUT    STD_LOGIC;                                   -- CE2
-           Zz        : OUT    STD_LOGIC                                   -- Snooze Mode
+           Zz        : OUT    STD_LOGIC;                                  -- Snooze Mode
+           --Burst Mode
+           B_Start   : IN     STD_LOGIC
            );
 
 end IO_SRAM;
@@ -83,32 +85,32 @@ component BasculeFF
     generic (
     bus_width : integer := 35
     ); 
-    Port ( D : in STD_LOGIC_VECTOR (bus_width downto 0);
-           Q : out STD_LOGIC_VECTOR (bus_width downto 0);
-           enable: in std_logic ;
-           clk : in STD_LOGIC;
-           reset : in STD_LOGIC);
+    Port ( D     : in  STD_LOGIC_VECTOR (bus_width downto 0);
+           Q     : out STD_LOGIC_VECTOR (bus_width downto 0);
+           enable: in  std_logic ;
+           clk   : in  STD_LOGIC;
+           reset : in  STD_LOGIC);
 end component;
   
  
-SIGNAL  Trig: std_logic_vector(35 downto 0) := (others => '1');
-SIGNAL  DataO: std_logic_vector(35 downto 0);
-SIGNAL  In_Out: std_logic_vector(35 downto 0);
-SIGNAL  DataI: std_logic_vector(35 downto 0);
+SIGNAL  Trig  : std_logic_vector(35 downto 0) := (others => '1');
+SIGNAL  DataO : std_logic_vector(35 downto 0);
+SIGNAL  DataI : std_logic_vector(35 downto 0);
 
 SIGNAL  DataOut_reg: std_logic_vector(35 downto 0):= (others => '0');
-SIGNAL  write_flag: std_logic;
-SIGNAL  read_flag: std_logic;
+SIGNAL  write_flag : std_logic;
+SIGNAL  read_flag  : std_logic;
  
-Type Machine_State is ( IDLE, READ, WRITE ); 
+Type Machine_State is ( IDLE, CONFIG, READ, WRITE, Burst_WRITE, Burst_READ, BUSRT_MODE); 
 SIGNAL STATE : Machine_State;
 
+SIGNAL  Burst_Count : Integer range 0 to 3 := 0;
 
  
-SIGNAL  reset        :  std_logic; 
-SIGNAL  enable       :   std_logic; 
-SIGNAL  D         :   std_logic_vector(35 downto 0);  
-SIGNAL  Q         :    std_logic_vector(35 downto 0);
+SIGNAL  reset                 :  std_logic; 
+SIGNAL  enable                :  std_logic; 
+SIGNAL  D, D_temp             :  std_logic_vector(35 downto 0);  
+SIGNAL  Q , DataI_temp        :  std_logic_vector(35 downto 0);
   
 
  
@@ -137,6 +139,18 @@ begin
             );       
 
     end generate;
+    
+                Ce_n     <= '0';
+                Ce2_n    <= '0';
+                Ce2      <= '1';
+               
+                Lbo_n    <= '0';  
+                
+                Bwa_n    <= '0';
+                Bwb_n    <= '0';
+                Bwc_n    <= '0';
+                Bwd_n    <= '0';
+                Zz       <= '0';
 
  
 Steps: Process(clk,rst) 
@@ -147,6 +161,7 @@ Steps: Process(clk,rst)
     
         elsif  rising_edge(clk) then
            case STATE is
+            when CONFIG =>
             when IDLE  =>
                 if (RW = '0') then --moi je veut lire
                    STATE <= READ;
@@ -169,7 +184,28 @@ Steps: Process(clk,rst)
                 else
                     STATE <= READ; 
                 end if;
-                
+           when Burst_WRITE =>
+            if B_start = '1' then 
+                if RW = '1' then 
+                    StATE <= Burst_WRITE;
+                else
+                    STATE <= Burst_READ;
+                end if;
+            end if;    
+            when Burst_READ =>
+            if B_start = '1' then 
+                if RW = '0' then 
+                    StATE <= Burst_READ;
+                else
+                    STATE <= Burst_WRITE;
+                end if;
+            end if;
+            if Burst_Count = 3 then 
+                STATE <= IDLE;
+            else 
+                Burst_count <= Burst_Count + 1;
+            end if;
+        
             when others =>
                 STATE <= IDLE;
             end case; 
@@ -177,12 +213,7 @@ Steps: Process(clk,rst)
         end if ;  
     end process;
 
---Steps_changing: Process(STATE)
---    begin
---        --NEXT_STATE <= STATE;
-        
---    end process;
- 
+
 Triggering_steps:Process(STATE,CLK)
     begin
         if falling_edge(clk) then 
@@ -190,50 +221,60 @@ Triggering_steps:Process(STATE,CLK)
                 when WRITE => 
                     Oe_n <= '1';
                     Trig <= (others => '0'); 
-                    DataI <= Data_In; 
+                    DataI_temp <= Data_In; 
+                    DataI <=DataI_temp; 
                     
                 when READ =>
                     Trig <= (others => '1'); 
                     Oe_n <= '0';-- active la sortie de la sram
+                    
+--                Ld_n     <= '1';
+                
+--                when BURST_READ =>
+--                when BURST_READ =>
 
             when others =>
-                Trig <= (others => '1');
+--                Trig <= (others => '1');
             end case;
          end if;
     end process;
 
-Cndtn_changing_steps: Process(STATE)
-    begin 
-        case STATE is 
-            when IDLE =>
-                Data_Out <= (others => '0');
-            
-            when WRITE =>
-                Rw_n <= '0';
-                Addr <= Addrs;
-                
-            when READ => 
-                RW_n <= '1'; 
-                Addr <= Addrs;  
-                
-            when others =>
-                RW_n <= '1'; 
-                Addr <= (others => '0'); 
-            end case;
-
-end process;
 
 Output: Process(CLK)
     begin
-        if rising_edge(clk) then 
-            if STATE  = READ  then
+        if rising_edge(clk) then
+            Case STATE is 
+                when WRITE => 
+                    Rw_n <= '0';
+                    Cke_n    <= '0';
+--                    Trig <= (others => '0');
+                    
+                    
+                when READ =>
+                    RW_n <= '1'; 
+                    Cke_n    <= '0';
+--                    Trig <= (others => '1');
+--                Ld_n     <= '1';
+                
+--                when BURST_READ =>
+--                when BURST_READ =>
+
+            when others => 
+            RW_n <= '1';
+            Cke_n    <= '1';
+               
+            end case;
+         
+     
+            if RW = '0' then
                 enable <= '1';
-                 D <= DataO;          
+                 D <= DataO;           
             else
                 enable <= '0';              
             end if;                  
         end if;       
     end process;
+    Addr <= Addrs;
    Data_Out <= Q;
 end behaviour;
  

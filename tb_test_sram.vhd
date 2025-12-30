@@ -115,35 +115,72 @@ BEGIN
      '0', '0', '0', nRW, nOE, nCE, nCE2, CE2, '0');
 
 	tb : PROCESS
-	BEGIN
+BEGIN
+    -- Initialize signals
+    SA      <= (others => '0');
+    nCKE    <= '0';
+    nADVLD  <= '0';
+    nRW     <= '1';  -- Read by default
+    nOE     <= '0';
+    nCE     <= '0';
+    nCE2    <= '0';
+    CE2     <= '1';
+    DQ      <= (others => 'Z'); -- tri-state when not writing
 
-	SA 		<= (others => '1');
-	nCKE 		<= '1';
-	nADVLD	<= '0';
-	nRW		<= '1';
-	nOE		<= '0';
-	nCE 		<= '0';
-	nCE2 		<= '0';
-	CE2 		<= '1';
+    wait for 1*(TCLKL+TCLKH);
 
-	wait for 1*(TCLKL+TCLKH);
-	SA 		<= "000"&x"0001";
-	nCKE 		<= '0';
-   nRW		<= '0';
-	wait for 1*(TCLKL+TCLKH);
-	SA 		<= "000"&x"0002";
-	DQ   <= (others =>'1');
-	nCKE 		<= '0';
-   nRW		<= '1';
+    ----------------------------------------------------------------
+    -- WRITE 4 DATA WORDS
+    ----------------------------------------------------------------
+    -- Write 1
+    SA      <= "000"&x"0001";
+    DQ      <= x"AAAAAAAAA";  -- example data, 36-bit, adjust if needed
+    nRW     <= '0';          -- write mode
+    nCKE    <= '0';
+    wait for 1*(TCLKL+TCLKH);
 
-	wait for 1*(TCLKL+TCLKH);
-	SA 		<= "000"&x"0001";
-   DQ   <= (others =>'Z');
-   nCKE 		<= '0';
-   nRW		<= '1';
-	wait for 1*(TCLKL+TCLKH);
-   nCKE 		<= '1';
-	wait; -- will wait forever
-	END PROCESS;
+    -- Write 2
+    SA      <= "000"&x"0002";
+    DQ      <= x"BBBBBBBBB";
+    wait for 1*(TCLKL+TCLKH);
+
+    -- Write 3
+    SA      <= "000"&x"0003";
+    DQ      <= x"CCCCCCCCC";
+    wait for 1*(TCLKL+TCLKH);
+
+    -- Write 4
+    SA      <= "000"&x"0004";
+    DQ      <= x"DDDDDDDDD";
+    wait for 1*(TCLKL+TCLKH);
+
+    ----------------------------------------------------------------
+    -- READ 4 DATA WORDS
+    ----------------------------------------------------------------
+    DQ      <= (others => 'Z'); -- tri-state for read
+    nRW     <= '1';             -- read mode
+
+    -- Read 1
+    SA      <= "000"&x"0001";
+    nCKE    <= '0';
+    wait for 1*(TCLKL+TCLKH);
+
+    -- Read 2
+    SA      <= "000"&x"0002";
+    wait for 1*(TCLKL+TCLKH);
+
+    -- Read 3
+    SA      <= "000"&x"0003";
+    wait for 1*(TCLKL+TCLKH);
+
+    -- Read 4
+    SA      <= "000"&x"0004";
+    wait for 1*(TCLKL+TCLKH);
+
+    wait; -- end simulation
+END PROCESS;
+
+	
+	
 
 END;

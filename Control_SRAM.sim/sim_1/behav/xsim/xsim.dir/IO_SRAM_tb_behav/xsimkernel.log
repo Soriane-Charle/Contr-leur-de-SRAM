@@ -1,7 +1,7 @@
-Running: xsim.dir/IO_SRAM_tb_behav/xsimk.exe -simmode gui -wdb IO_SRAM_tb_behav.wdb -simrunnum 0 -socket 64571
+Running: xsim.dir/IO_SRAM_tb_behav/xsimk.exe -simmode gui -wdb IO_SRAM_tb_behav.wdb -simrunnum 0 -socket 10784
 Design successfully loaded
-Design Loading Memory Usage: 26364 KB (Peak: 26364 KB)
-Design Loading CPU Usage: 31 ms
+Design Loading Memory Usage: 26068 KB (Peak: 26068 KB)
+Design Loading CPU Usage: 46 ms
 Simulation completed
-Simulation Memory Usage: 27012 KB (Peak: 27012 KB)
-Simulation CPU Usage: 187 ms
+Simulation Memory Usage: 26740 KB (Peak: 26740 KB)
+Simulation CPU Usage: 46 ms
