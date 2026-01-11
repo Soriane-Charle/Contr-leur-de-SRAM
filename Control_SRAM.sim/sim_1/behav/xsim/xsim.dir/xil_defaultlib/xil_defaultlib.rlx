@@ -3,15 +3,15 @@
 May 24 2019
 15:06:07
 D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sim_1/new/IO_SRAM_tb.vhd,1767116445,vhdl,,,,tb_sram_ctrl,,,,,,,,
-D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sim_1/new/SIM.vhd,1767120316,vhdl,,,,tb_sram_ctrl3,,,,,,,,
+D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sim_1/new/SIM.vhd,1768171095,vhdl,,,,tb_sram_ctrl3,,,,,,,,
 D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sim_1/new/tb_sram_ctrl.vhd,1767110015,vhdl,,,,tb_sram_ctrl_with_model,,,,,,,,
 D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sources_1/new/IO_Buffer.vhd,1766521948,vhdl,,,,io_sram,,,,,,,,
 D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sources_1/new/sram_ctrl.vhd,1767110044,vhdl,D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sim_1/new/tb_sram_ctrl.vhd,,,sram_ctrl1,,,,,,,,
-D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sources_1/new/sram_iobuff.vhd,1767119574,vhdl,D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sim_1/new/SIM.vhd,,,sram_ctrl3,,,,,,,,
+D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sources_1/new/sram_iobuff.vhd,1768171098,vhdl,D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sim_1/new/SIM.vhd,,,sram_ctrl3,,,,,,,,
 D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sources_1/new/sranControler.vhd,1766613874,vhdl,D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sim_1/new/tb_sram_ctrl.vhd,,,sram_ctrl,,,,,,,,
 D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sources_1/new/time_counter.vhd,1762164974,vhdl,,,,clock_counter,,,,,,,,
 D:/Xilinx/sosoVivado/Control_SRAM/iob.vhd,1762028213,vhdl,,,,test_io,,,,,,,,
-D:/Xilinx/sosoVivado/Control_SRAM/mt55l512y36f.vhd,1762024175,vhdl,D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sim_1/new/tb_sram_ctrl.vhd,,,mt55l512y36f,,,,,,,,
+D:/Xilinx/sosoVivado/Control_SRAM/mt55l512y36f.vhd,1762024175,vhdl,D:/Xilinx/sosoVivado/Control_SRAM/Control_SRAM.srcs/sim_1/new/SIM.vhd,,,mt55l512y36f,,,,,,,,
 D:/Xilinx/sosoVivado/Control_SRAM/tb_test_io.vhd,1767115296,vhdl,,,,tb_iobuf_f_16,,,,,,,,
 D:/Xilinx/sosoVivado/Control_SRAM/tb_test_sram.vhd,1766525734,vhdl,,,,tb_test_sram,,,,,,,,
 D:/Xilinx/sosoVivado/project_filters/project_filters.srcs/sources_1/new/BasculeFF.vhd,1736597280,vhdl,,,,basculeff,,,,,,,,

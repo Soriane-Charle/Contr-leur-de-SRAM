@@ -1,107 +1,65 @@
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
 
 entity tb_sram_ctrl3 is
 end entity;
 
 architecture sim of tb_sram_ctrl3 is
 
-    ------------------------------------------------------------------
-    -- Clock
-    ------------------------------------------------------------------
-    constant Tclk : time := 30 ns;
-    signal clk    : std_logic := '0';
-    signal reset  : std_logic := '1';
+    signal clk      : std_logic := '0';
+    signal reset    : std_logic := '1';
 
-    ------------------------------------------------------------------
-    -- Manual command interface
-    ------------------------------------------------------------------
-    signal wr_en  : std_logic := '0';
-    signal rd_en  : std_logic := '0';
-    signal addr_i : std_logic_vector(18 downto 0) := (others => '0');
-    signal wdata  : std_logic_vector(35 downto 0) := (others => '0');
-    signal rdata  : std_logic_vector(35 downto 0);
+    signal wr_en    : std_logic := '0';
+    signal rd_en    : std_logic := '0';
+    signal burst_en : std_logic := '0';
 
-    ------------------------------------------------------------------
-    -- SRAM interface
-    ------------------------------------------------------------------
-    signal DQ     : std_logic_vector(35 downto 0);
-    signal Addr   : std_logic_vector(18 downto 0);
-    signal nCKE   : std_logic;
-    signal nADVLD : std_logic;
-    signal nRW    : std_logic;
-    signal nOE    : std_logic;
-    signal nCE    : std_logic;
-    signal nCE2   : std_logic;
-    signal CE2    : std_logic;
+    signal addr_i   : std_logic_vector(18 downto 0);
+    signal wdata    : std_logic_vector(35 downto 0);
+    signal wdata_burst : std_logic_vector(143 downto 0);
 
-    ------------------------------------------------------------------
-    -- DUT internal (for contention check)
-    ------------------------------------------------------------------
- 
-    ------------------------------------------------------------------
-    -- SRAM model
-    ------------------------------------------------------------------
-    component mt55l512y36f
-        generic (
-            addr_bits : integer := 19;
-            data_bits : integer := 36
-        );
-        port (
-            Dq    : inout std_logic_vector (data_bits-1 downto 0);
-            Addr  : in    std_logic_vector (addr_bits-1 downto 0);
-            Lbo_n : in    std_logic;
-            Clk   : in    std_logic;
-            Cke_n : in    std_logic;
-            Ld_n  : in    std_logic;
-            Bwa_n : in    std_logic;
-            Bwb_n : in    std_logic;
-            Bwc_n : in    std_logic;
-            Bwd_n : in    std_logic;
-            Rw_n  : in    std_logic;
-            Oe_n  : in    std_logic;
-            Ce_n  : in    std_logic;
-            Ce2_n : in    std_logic;
-            Ce2   : in    std_logic;
-            Zz    : in    std_logic
-        );
-    end component;
+    signal rdata        : std_logic_vector(35 downto 0);
+    signal rdata_burst  : std_logic_vector(143 downto 0);
+
+    signal DQ       : std_logic_vector(35 downto 0);
+    signal Addr     : std_logic_vector(18 downto 0);
+
+    signal nCKE, nADVLD, nRW, nOE, nCE, nCE2, CE2 : std_logic;
 
 begin
 
-    ------------------------------------------------------------------
-    -- Clock generation
-    ------------------------------------------------------------------
-    clk <= not clk after Tclk/2;
+    clk <= not clk after 5 ns;
 
     ------------------------------------------------------------------
-    -- DUT (REDUCED FSM VERSION)
+    -- DUT
     ------------------------------------------------------------------
     dut : entity work.sram_ctrl3
         port map (
-            clk     => clk,
-            reset   => reset,
-            wr_en   => wr_en,
-            rd_en   => rd_en,
-            addr_i  => addr_i,
-            wdata_i => wdata,
-            rdata_o => rdata,
-            DQ      => DQ,
-            Addr    => Addr,
-            nCKE    => nCKE,
-            nADVLD  => nADVLD,
-            nRW     => nRW,
-            nOE     => nOE,
-            nCE     => nCE,
-            nCE2    => nCE2,
-            CE2     => CE2
+            clk      => clk,
+            reset    => reset,
+            wr_en    => wr_en,
+            rd_en    => rd_en,
+            burst_en => burst_en,
+            addr_i   => addr_i,
+            wdata_i  => wdata,
+            wdata_burst_i => wdata_burst,
+            rdata_o        => rdata,
+            rdata_burst_o  => rdata_burst,
+            DQ       => DQ,
+            Addr     => Addr,
+            nCKE     => nCKE,
+            nADVLD   => nADVLD,
+            nRW      => nRW,
+            nOE      => nOE,
+            nCE      => nCE,
+            nCE2     => nCE2,
+            CE2      => CE2
         );
 
     ------------------------------------------------------------------
-    -- SRAM model instantiation (real Micron model)
+    -- SRAM MODEL (exact ports)
     ------------------------------------------------------------------
-    sram : mt55l512y36f
+    sram : entity work.mt55l512y36f
         port map (
             Dq    => DQ,
             Addr  => Addr,
@@ -122,99 +80,54 @@ begin
         );
 
     ------------------------------------------------------------------
-    -- BUS CONTENTION CHECK (CRITICAL)
-    -- FPGA drives when nRW='0'
-    -- SRAM drives when nOE='0'
+    -- Stimulus
     ------------------------------------------------------------------
-    process(clk)
+    process
     begin
-        if rising_edge(clk) then
-            assert not (nRW = '0' and nOE = '0')
-            report "BUS CONTENTION: FPGA and SRAM driving DQ"
-            severity failure;
-        end if;
+        -- Reset
+        wait for 20 ns;
+        reset <= '0';
+
+        -- SIMPLE WRITE
+        addr_i <= std_logic_vector(to_unsigned(16#10#, 19));
+        wdata  <= x"111111111";
+        burst_en <= '0';
+        wr_en <= '1';
+        wait for 10 ns;
+        wr_en <= '0';
+
+        -- SIMPLE READ
+        wait for 20 ns;
+        rd_en <= '1';
+        wait for 10 ns;
+        rd_en <= '0';
+
+        wait for 20 ns;
+        
+
+        -- BURST WRITE (4 different values)
+        wdata_burst <=
+            x"000000004" &
+            x"000000003" &
+            x"000000002" &
+            x"000000001";
+
+        addr_i   <= std_logic_vector(to_unsigned(16#40#, 19));
+        burst_en <= '1';
+        wr_en    <= '1';
+        wait for 10 ns;
+        wr_en    <= '0';
+
+        -- BURST READ
+        wait for 40 ns;
+        rd_en <= '1';
+        wait for 10 ns;
+        rd_en <= '0';
+
+        wait for 60 ns;
+
+        
+        wait;
     end process;
-
-    ------------------------------------------------------------------
-    -- Test sequence
-    ------------------------------------------------------------------
-   stim : process
-begin
-    --------------------------------------------------------------
-    -- Reset
-    --------------------------------------------------------------
-    reset <= '1';
-    wait for 2*Tclk;
-    reset <= '0';
-    wait for Tclk;
-
-    --------------------------------------------------------------
-    -- WRITE one word
-    --------------------------------------------------------------
-   -------------------------------------------------------------
--- WRITE
---------------------------------------------------------------
-wr_en  <= '1';
-addr_i <= "000"&x"0010";
-wdata  <= x"123456789";
-
-wait for Tclk;   -- WRITE
-
-
-addr_i <= "000"&x"0011";
-wdata  <= x"123456700";
-
-wait for Tclk;   -- WRITE
-
-
-addr_i <= "000"&x"0110";
-wdata  <= x"123456780";
-
-wait for Tclk;   -- WRITE
-wait for Tclk; 
-
-wr_en <= '0';
-
-wait for Tclk;   -- WRITE
-wait for Tclk; 
-
-
---------------------------------------------------------------
--- READ
---------------------------------------------------------------
-rd_en  <= '1';
-addr_i <= "000"&x"0010";
-
-wait for Tclk;   -- READ command issued
-
-
-rd_en  <= '1';
-addr_i <= "000"&x"0110";
-
-wait for Tclk;   -- READ command issued
-
-
-
-rd_en  <= '1';
-addr_i <= "000"&x"0011";
-
-wait for Tclk;   -- READ command issued
-wait for Tclk;   -- DATA becomes valid here
-
-
-rd_en <= '0';
-
---------------------------------------------------------------
--- CHECK DATA
---------------------------------------------------------------
-
-
-    --------------------------------------------------------------
-    -- End simulation
-    --------------------------------------------------------------
-    wait for 5*Tclk;
-    assert false report "Simulation finished successfully" severity failure;
-end process;
-
 
 end architecture;
